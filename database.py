@@ -11,7 +11,5 @@ def get_db():
     db = session()
     try:
         yield db
-    except Exception as e:
-        print("Database session error:", str(e))
     finally:
         db.close()
