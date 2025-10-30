@@ -17,7 +17,7 @@ def add_new_todo(todo_data, db):
     return new_todo
 
 def list_all_todos(db):
-    list_of_all_todos = db.query(Todo_Model).all()
+    list_of_all_todos = db.query(Todo_Model).filter(Todo_Model.is_deleted == False).all()
     return list_of_all_todos
 
 def soft_delete_todo(todo_id: int, db):
