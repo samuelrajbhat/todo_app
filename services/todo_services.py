@@ -14,3 +14,7 @@ def add_new_todo(todo_data, db):
     db.commit()
     db.refresh(new_todo)
     return new_todo
+
+def list_all_todos(db):
+    list_of_all_todos = db.query(Todo_Model).all()
+    return list_of_all_todos
