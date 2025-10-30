@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Enum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
 from database import Base
 from datetime import datetime
 import enum
@@ -28,3 +28,5 @@ class Todo_Model(Base):
     creation_date = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     status = Column(Enum(TodoStatus), default=TodoStatus.PENDING)
+    is_deleted = Column(Boolean, default=False)
+    deleted_at = Column(DateTime, nullable=True)
