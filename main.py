@@ -6,7 +6,7 @@ from models import todo_models, user_models
 
 
 
-from api.todo_api import router as todo_router
+from api.todo_api import protected_router as todo_router
 from auth.auth_api import router as auth_router
 
 app = FastAPI()
