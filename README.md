@@ -24,23 +24,20 @@ Users can register, log in, and manage personal todo items securely.
 
 ## Installation
 
-1. Clone the repo:
+1. **Clone the repo:**
 git clone https://github.com/yourusername/todo-app.git
 cd todo-app
 
 
-2. Create & activate virtual environment:
-
+2. **Create & activate virtual environment:**
 python -m venv .venv
-# Windows
+**Windows**
 .venv\Scripts\activate
-# Linux/Mac
+**Linux/Mac**
 source .venv/bin/activate
 
-3. Install dependencies:
-
+3. **Install dependencies:**
 pip install -r requirements.txt
 
-4. Run the app:
-
+4. **Run the app:**
 uvicorn main:app --reload
