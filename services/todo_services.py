@@ -28,3 +28,12 @@ def soft_delete_todo(todo_id: int, db):
     todo.is_deleted = True
     todo.deleted_at = datetime.now()
     db.commit()
+
+def update_todo_status(todo_id: int, todo_data, db):
+    todo_update = db.query(Todo_Model).filter(Todo_Model.id == todo_id, Todo_Model.is_deleted == False).first()
+    if not todo_update:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    todo_update.status = todo_data.status
+    db.commit()
+    db.refresh(todo_update)
+    return todo_update

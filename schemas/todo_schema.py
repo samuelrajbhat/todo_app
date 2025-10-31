@@ -10,3 +10,5 @@ class TodoForm(BaseModel):
     priority: Optional[PriorityLevel] = PriorityLevel.LOW  
     status: Optional[TodoStatus] = TodoStatus.PENDING 
 
+class TodoStatusUpdateForm(BaseModel):
+    status: TodoStatus
