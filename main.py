@@ -19,7 +19,4 @@ app.include_router(auth_router)
 def display_root_message():
     return{"Message": "Welcome to todo app"}
 
-@app.get("/home")
-def display_home_message(db: Session = Depends(get_db)):
-    return {"Message": "Welcome to the home page"}
 

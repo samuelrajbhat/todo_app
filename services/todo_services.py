@@ -10,7 +10,7 @@ def add_new_todo(todo_data, db, current_user):
         description= todo_data.description,
         priority= todo_data.priority,
         status= todo_data.status,
-        current_user=current_user.id
+        owner_id=current_user.id
     )
     db.add(new_todo)
     db.commit()
