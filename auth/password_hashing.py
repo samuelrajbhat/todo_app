@@ -47,9 +47,11 @@ def add_new_user(db, formdata):
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        return JSONResponse(status_code=status.HTTP_201_CREATED,
+        response=  JSONResponse(status_code=status.HTTP_201_CREATED,
                             content={"message":f"{formdata.username} added succesfull"}
         )
+        print("Response>>>>>>>>>>>>",response)
+        return response
     except Exception as e:
         return JSONResponse( status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             content={"error": str(e)}
