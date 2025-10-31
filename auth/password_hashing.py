@@ -1,5 +1,5 @@
 from passlib.context import CryptContext
-from schemas.user_schema import UserInDB
+from schemas.user_schema import UserInDB, UserSchema
 from models.user_models import Users
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
@@ -16,7 +16,7 @@ def get_password_hash(password):
 def get_user(db, username: str): # type: ignore
 
     user = db.query(Users).filter(Users.username == username).first()
-    print (user)
+    print (">>>>>>>>>>",user)
     
     if user:
         return user
@@ -25,6 +25,7 @@ def get_user(db, username: str): # type: ignore
 
 def authenticate_user(db, username:str, password: str):
     user = get_user(db, username= username)
+    print("User fetched for authentication>>>>>>>>>>>>", user)
     user = UserInDB.model_validate(user)
     if not  user :
         return False

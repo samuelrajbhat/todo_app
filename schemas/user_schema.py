@@ -7,9 +7,26 @@ class UserSchema(BaseModel):
     username: str
     full_name: str
     email: str
-    password: str
-    is_deleted: bool = False
+    is_deleted: bool
+    model_config = {
+        "from_attributes": True 
+        # To allow instantiating this pydantic model from SQLAlchemy objects (or any other  attributes) using model_validate()
 
+    }
+    
 
 class UserInDB(UserSchema):
     hashed_password: str
+    model_config = {
+        "from_attributes": True 
+        # To allow instantiating this pydantic model from SQLAlchemy objects (or any other  attributes) using model_validate()
+
+    }
+    
+
+class Access_token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username : str or None = None # type: ignore

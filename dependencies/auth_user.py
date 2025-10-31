@@ -1,56 +1,39 @@
-from passlib.context import CryptContext
-from schemas.user_schema import UserInDB
-from models.user_models import Users
-from fastapi import HTTPException, status
-from fastapi.responses import JSONResponse
+from fastapi import HTTPException, Depends, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from core.config import settings
+from jose import JWTError, jwt
+from schemas.user_schema import TokenData, UserSchema, UserInDB
+from auth.password_hashing import get_user
+from sqlalchemy.orm import Session
+from database import get_db
 
+from utils.jwt_decode import verify_token
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated = "auto")
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
+oauth_2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-def verify_password(plain_password,hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+async def get_current_user(token: str = Depends(oauth_2_scheme), db: Session= Depends(get_db)):
+    credential_exception = HTTPException(status_code= status.HTTP_401_UNAUTHORIZED)
 
-def get_password_hash(password):
-    return pwd_context.hash(password)
-
-def get_user(db, username: str): # type: ignore
-
-    user = db.query(Users).filter(Users.username == username).first()
-    print (user)
+    try:
+        payload = verify_token(token)
+        username: str = payload.get("sub") #type: ignore
+        if username is None: 
+            raise credential_exception
+        token_data = TokenData(username=username)
+    except JWTError:
+        raise credential_exception
+    user = get_user(db, token_data.username)
     
+    #  user = get_user(UserClass, token_data) # type: ignore
+    if user is None: 
+        raise credential_exception
     if user:
-        return user
-    else: 
-        return None
-
-def authenticate_user(db, username:str, password: str):
-    user = get_user(db, username= username)
-    user = UserInDB.model_validate(user)
-    if not  user :
-        return False
-    if not verify_password(password, user.hashed_password):
-        return False
+        user = UserSchema.model_validate(user)
     return user
 
-print("Hashed",get_password_hash("123456"))
-
-def add_new_user(db, formdata):
-
-    username = formdata.username
-    if db.query(Users).filter(Users.username == username).first():
-        raise HTTPException(status_code=400, detail= "Username already taken")
-    new_user = Users(username = formdata.username,
-                         email = formdata.email,
-                         full_name = formdata.full_name,
-                         hashed_password= get_password_hash(formdata.password))
-    try:
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
-        return JSONResponse(status_code=status.HTTP_201_CREATED,
-                            content={"message":f"{formdata.username} added succesfull"}
-        )
-    except Exception as e:
-        return JSONResponse( status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                            content={"error": str(e)}
-        )
+async def get_current_active_user(current_user: UserSchema= Depends(get_current_user)):
+    if current_user.is_deleted: 
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail= "Inactive User")
+    return current_user
