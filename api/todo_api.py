@@ -7,6 +7,9 @@ from database import get_db
 from dependencies.auth_user import get_current_active_user 
 from models.user_models import Users
 
+from fastapi import BackgroundTasks
+from tasks.background_tasks import write_notification
+
 protected_router = APIRouter(prefix="/api",
                    dependencies=[Security(get_current_active_user)])
 
@@ -23,9 +26,10 @@ def list_all_todo_items(db:Session = Depends(get_db), current_user: Users = Depe
     return{"todos": todos}
 
 @protected_router.post("/todos")
-def add_todo_item(todo_data:TodoForm, db: Session = Depends(get_db), current_user: Users = Depends(get_current_active_user)):
+def add_todo_item(todo_data:TodoForm, background_tasks: BackgroundTasks, db: Session = Depends(get_db), current_user: Users = Depends(get_current_active_user)):
     print(">>>>>>>", current_user)
     todo = add_new_todo(todo_data, db, current_user)
+    background_tasks.add_task(write_notification, todo.todo_name)
     return{"message": f"{todo}"}
 
 @protected_router.delete("/todos/{todo_id}")
