@@ -19,25 +19,28 @@ def display_home_message(db: Session = Depends(get_db), current_user: Users = De
     return {"Message": "Welcome to the home page", "user": current_user.username}
 
 
-
+# list all TODO items
 @protected_router.get("/todos")
 def list_all_todo_items(db:Session = Depends(get_db), current_user: Users = Depends(get_current_active_user)):
     todos = list_all_todos(db, current_user)
     return{"todos": todos}
 
+# Add new TODO item
 @protected_router.post("/todos")
 def add_todo_item(todo_data:TodoForm, background_tasks: BackgroundTasks, db: Session = Depends(get_db), current_user: Users = Depends(get_current_active_user)):
     print(">>>>>>>", current_user)
     todo = add_new_todo(todo_data, db, current_user)
-    background_tasks.add_task(write_notification, todo.todo_name)
+    background_tasks.add_task(write_notification, todo.todo_name, current_user.username, todo_operation = "created") # type: ignore
     return{"message": f"{todo}"}
 
 @protected_router.delete("/todos/{todo_id}")
-def delete_todo_item(todo_id: int, db: Session = Depends(get_db), current_user: Users = Depends(get_current_active_user)):
+def delete_todo_item(todo_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db), current_user: Users = Depends(get_current_active_user)):
     todo = soft_delete_todo(todo_id, db, current_user)
+    background_tasks.add_task(write_notification, todo.todo_name, current_user.username, todo_operation = "deleted") # type: ignore
     return {"message": f"Todo item with id {todo} deleted successfully"}
 
 @protected_router.put("/todos/{todo_id}/status")
-def update_todo(todo_id: int, todo_data: TodoStatusUpdateForm, db: Session = Depends(get_db), current_user: Users = Depends(get_current_active_user)):
+def update_todo(todo_id: int, todo_data: TodoStatusUpdateForm, background_tasks: BackgroundTasks, db: Session = Depends(get_db), current_user: Users = Depends(get_current_active_user)):
     todo_update= update_todo_status(todo_id, todo_data, db, current_user)
-    return {"message": f"Todo item with id {todo_id} status updated successfully"} 
+    background_tasks.add_task(write_notification, todo_update.todo_name, current_user.username, todo_operation = "updated") # type: ignore
+    return {"message": f"Todo item with id {todo_id} status updated successfully"}
