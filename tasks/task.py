@@ -15,8 +15,6 @@ def add(x,y):
     return x + y
 
 
-
-
 @celery_app.task(name='write-notification-task')
 def write_notification(todo_title: str, current_user: str,  todo_operation:str):
 

@@ -29,10 +29,12 @@ def soft_delete_todo(todo_id: int, db, current_user):
     todo = db.query(Todo_Model).filter(Todo_Model.id == todo_id, Todo_Model.is_deleted == False, Todo_Model.owner_id == current_user.id).first()
     if not todo:
         raise HTTPException(status_code=404, detail="Todo not found")
-    
+    todo_name = todo.todo_name
     todo.is_deleted = True
     todo.deleted_at = datetime.now()
     db.commit()
+    notification_task = write_notification.delay(todo_name, current_user.username, todo_operation = "deleted")
+    return {"deleted_todo_id": todo_id, "task_id": notification_task.id}
 
 def update_todo_status(todo_id: int, todo_data, db, current_user):
     todo_update = db.query(Todo_Model).filter(Todo_Model.id == todo_id, Todo_Model.is_deleted == False, Todo_Model.owner_id == current_user.id).first()
@@ -41,4 +43,6 @@ def update_todo_status(todo_id: int, todo_data, db, current_user):
     todo_update.status = todo_data.status
     db.commit()
     db.refresh(todo_update)
-    return todo_update
+    notification_task = write_notification.delay(todo_update.todo_name, current_user.username, todo_operation = "updated")
+
+    return {"updated_todo": todo_update, "task_id": notification_task.id}

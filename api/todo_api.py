@@ -7,8 +7,6 @@ from database import get_db
 from dependencies.auth_user import get_current_active_user 
 from models.user_models import Users
 
-from fastapi import BackgroundTasks
-from tasks.background_tasks import write_notification
 
 protected_router = APIRouter(prefix="/api",
                    dependencies=[Security(get_current_active_user)])
@@ -30,17 +28,13 @@ def list_all_todo_items(db:Session = Depends(get_db), current_user: Users = Depe
 def add_todo_item(todo_data:TodoForm, db: Session = Depends(get_db), current_user: Users = Depends(get_current_active_user)):
     print(">>>>>>>", current_user)
     todo = add_new_todo(todo_data, db, current_user)
-    # background_tasks.add_task(write_notification, todo.todo_name, current_user.username, todo_operation = "created") # type: ignore
     return{"message": f"{todo}"}
 
 @protected_router.delete("/todos/{todo_id}")
-def delete_todo_item(todo_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db), current_user: Users = Depends(get_current_active_user)):
-    todo = soft_delete_todo(todo_id, db, current_user)
-    background_tasks.add_task(write_notification, todo.todo_name, current_user.username, todo_operation = "deleted") # type: ignore
-    return {"message": f"Todo item with id {todo} deleted successfully"}
+def delete_todo_item(todo_id: int, db: Session = Depends(get_db), current_user: Users = Depends(get_current_active_user)):
+    return soft_delete_todo(todo_id, db, current_user)
 
 @protected_router.put("/todos/{todo_id}/status")
-def update_todo(todo_id: int, todo_data: TodoStatusUpdateForm, background_tasks: BackgroundTasks, db: Session = Depends(get_db), current_user: Users = Depends(get_current_active_user)):
+def update_todo(todo_id: int, todo_data: TodoStatusUpdateForm, db: Session = Depends(get_db), current_user: Users = Depends(get_current_active_user)):
     todo_update= update_todo_status(todo_id, todo_data, db, current_user)
-    background_tasks.add_task(write_notification, todo_update.todo_name, current_user.username, todo_operation = "updated") # type: ignore
     return {"message": f"Todo item with id {todo_id} status updated successfully"}
