@@ -4,3 +4,7 @@ todo created: new todo 3  by samuel
 todo : new todo 3   created by samuel 
 todo : new todo 2  updated by samuel 
 todo : new todo 3   updated by samuel 
+todo : celery todo app   created by samuel 
+todo : celery todo app 2   created by samuel 
+todo : celery todo app 3 created by samuel 
+todo : celery todo app 4 created by samuel 

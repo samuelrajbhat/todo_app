@@ -3,6 +3,7 @@ from fastapi import status, HTTPException
 from models.todo_models import Todo_Model
 from datetime import datetime
 
+from tasks.task import write_notification
 
 def add_new_todo(todo_data, db, current_user):
     new_todo= Todo_Model(
@@ -15,7 +16,9 @@ def add_new_todo(todo_data, db, current_user):
     db.add(new_todo)
     db.commit()
     db.refresh(new_todo)
-    return new_todo
+    notification_task = write_notification.delay(new_todo.todo_name, current_user.username, todo_operation = "created")
+    
+    return {"created_todo": new_todo, "task_id": notification_task.id}
 
 def list_all_todos(db, current_user):
     list_of_all_todos = db.query(Todo_Model).filter(Todo_Model.is_deleted == False,
