@@ -10,12 +10,13 @@ from tasks.task import add
 from api.todo_api import protected_router as todo_router
 from auth.auth_api import router as auth_router
 
-app = FastAPI()
-Base.metadata.create_all(bind=engine)
+
+app = FastAPI() 
+# Assigns the lifespan to the FastAPI app.
+# Base.metadata.create_all(bind=engine)
 
 app.include_router(todo_router)
 app.include_router(auth_router)
-
 
 
 @app.get("/")

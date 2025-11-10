@@ -7,11 +7,11 @@ from tasks.task import write_notification
 
 def add_new_todo(todo_data, db, current_user):
     new_todo= Todo_Model(
-        todo_name= todo_data.todo_name,
-        description= todo_data.description,
-        priority= todo_data.priority,
-        status= todo_data.status,
-        owner_id=current_user.id
+    todo_name= todo_data.todo_name,
+    description= todo_data.description,
+    priority= todo_data.priority,
+    status= todo_data.status,
+    owner_id=current_user.id
     )
     db.add(new_todo)
     db.commit()
