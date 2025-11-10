@@ -11,3 +11,4 @@ todo : celery todo app 4 created by samuel
 todo : new todo 3   deleted by samuel 
 todo : new todo 3   deleted by samuel 
 todo : celery todo app   deleted by samuel 
+todo : celery todo app 4 created by samuel 
